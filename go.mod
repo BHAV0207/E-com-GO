@@ -1,4 +1,4 @@
-module github.com/BHAV0207/E-com-Microservices-GO/UserService
+module github.com/BHAV0207/E-com-GO
 
 go 1.24.1
 
