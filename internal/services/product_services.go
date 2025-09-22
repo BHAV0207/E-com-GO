@@ -5,6 +5,7 @@ import (
 
 	"github.com/BHAV0207/E-com-GO/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -13,7 +14,7 @@ func InsertProduct(ctx context.Context, collection *mongo.Collection, product mo
 	return result.InsertedID, err
 }
 
-func getAllProducts(ctx context.Context, collection *mongo.Collection) ([]models.Product, error) {
+func GetAllProducts(ctx context.Context, collection *mongo.Collection) ([]models.Product, error) {
 
 	cursor, err := collection.Find(ctx, bson.D{})
 	if err != nil {
@@ -32,5 +33,17 @@ func getAllProducts(ctx context.Context, collection *mongo.Collection) ([]models
 	}
 
 	return products, nil
+}
 
+func UpdateProductById(ctx context.Context, collection *mongo.Collection, id primitive.ObjectID, updateFields bson.M) (int64, err) {
+	filter := bson.M{"_id": id}
+	update := bson.M{"$set": updateFields}
+
+	result, err := collection.UpdateOne(ctx, filter, update)
+
+	if err != nil {
+		return 0, err
+	}
+
+	return result.ModifiedCount, nil
 }
