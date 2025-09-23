@@ -29,6 +29,7 @@ func main() {
 
 	//  routes for user
 	router.HandleFunc("/register", userHandler.Register).Methods("POST")
+	router.HandleFunc("/login", userHandler.Login).Methods("POST")
 
 	// Define routes for products
 	router.HandleFunc("/products", productHandler.CreateProduct).Methods("POST")
