@@ -24,9 +24,13 @@ func main() {
 	productsCol := db.Collection("products")
 
 	productHandler := &handler.ProductHandler{Collection: productsCol}
+	userHandler := &handler.UserHandler{Collection: db.Collection("users")}
 	router := mux.NewRouter()
 
-	// Define routes
+	//  routes for user
+	router.HandleFunc("/register", userHandler.Register).Methods("POST")
+
+	// Define routes for products
 	router.HandleFunc("/products", productHandler.CreateProduct).Methods("POST")
 	router.HandleFunc("/products", productHandler.GetAllProducts).Methods("GET")
 	router.HandleFunc("/products/{id}", productHandler.UpdateProduct).Methods("PUT")
