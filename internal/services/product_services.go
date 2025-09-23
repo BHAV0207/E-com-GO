@@ -35,7 +35,7 @@ func GetAllProducts(ctx context.Context, collection *mongo.Collection) ([]models
 	return products, nil
 }
 
-func UpdateProductById(ctx context.Context, collection *mongo.Collection, id primitive.ObjectID, updateFields bson.M) (int64, err) {
+func UpdateProductByID(ctx context.Context, collection *mongo.Collection, id primitive.ObjectID, updateFields bson.M) (int64, err) {
 	filter := bson.M{"_id": id}
 	update := bson.M{"$set": updateFields}
 
@@ -46,4 +46,13 @@ func UpdateProductById(ctx context.Context, collection *mongo.Collection, id pri
 	}
 
 	return result.ModifiedCount, nil
+}
+
+func DeleteProductByID(ctx context.Context, collection *mongo.Collection, id primitive.ObjectID) (int64, error) {
+	filter := bson.M{"_id": id}
+	result, err := collection.DeleteOne(ctx, filter)
+	if err != nil {
+		return 0, err
+	}
+	return result.DeletedCount, nil
 }

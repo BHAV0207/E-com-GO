@@ -3,66 +3,36 @@ package main
 import (
 	"context"
 	"fmt"
-	"time"
+	"log"
+	"net/http"
 
 	"github.com/BHAV0207/E-com-GO/internal/database"
-	"github.com/BHAV0207/E-com-GO/internal/models"
-	"github.com/BHAV0207/E-com-GO/internal/services"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"gopkg.in/mgo.v2/bson"
+	"github.com/BHAV0207/E-com-GO/internal/handler"
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	uri := "mongodb+srv://jainbhav0207:XosZWJgwpDfcoJ7M@cluster0.g5yofar.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
-
 	client := database.Connect(uri)
-	defer client.Disconnect(context.Background())
+	defer func() {
+		if err := client.Disconnect(context.Background()); err != nil {
+			log.Fatal(err)
+		}
+	}()
 
 	db := client.Database("ecommerce")
 	productsCol := db.Collection("products")
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	productHandler := &handler.ProductHandler{Collection: productsCol}
+	router := mux.NewRouter()
 
-	product := models.Product{
-		Name:        "Sample Product",
-		Description: "A great product!",
-		Price:       19.99,
-		InStock:     100,
-	}
+	// Define routes
+	router.HandleFunc("/products", productHandler.CreateProduct).Methods("POST")
+	router.HandleFunc("/products", productHandler.GetAllProducts).Methods("GET")
+	router.HandleFunc("/products/{id}", productHandler.UpdateProduct).Methods("PUT")
+	router.HandleFunc("/products/{id}", productHandler.DeleteById).Methods("DELETE")
 
-	_, _ = services.InsertProduct(ctx, productsCol, product)
-
-	//  fetching all products
-
-	products, err := services.GetAllProducts(ctx, productsCol)
-	if err != nil {
-		fmt.Println("Error fetching products:", err)
-		return
-	}
-
-	fmt.Println("All products:")
-	for _, p := range products {
-		fmt.Printf("%+v\n", p)
-	}
-
-	// reteriving id
-	productID, _ := primitive.ObjectIDFromHex("your_product_id_here")
-
-	// update
-	updateFields := bson.M{"price": 24.99, "in_stock": 50}
-	updated, err := services.UpdateProductByID(ctx, productsCol, productID, updateFields)
-	if err != nil {
-		fmt.Println("Update error:", err)
-	} else {
-		fmt.Printf("Updated %d product(s)\n", updated)
-	}
-
-	// deleting
-	deleted, err := services.DeleteProductByID(ctx, productsCol, productID)
-	if err != nil {
-		fmt.Println("Delete error:", err)
-	} else {
-		fmt.Printf("Deleted %d product(s)\n", deleted)
-	}
+	// Start server
+	fmt.Println("Server listening on http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", router))
 }
