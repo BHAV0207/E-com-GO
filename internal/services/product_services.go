@@ -35,7 +35,7 @@ func GetAllProducts(ctx context.Context, collection *mongo.Collection) ([]models
 	return products, nil
 }
 
-func UpdateProductByID(ctx context.Context, collection *mongo.Collection, id primitive.ObjectID, updateFields bson.M) (int64, err) {
+func UpdateProductByID(ctx context.Context, collection *mongo.Collection, id primitive.ObjectID, updateFields bson.M) (int64, error) {
 	filter := bson.M{"_id": id}
 	update := bson.M{"$set": updateFields}
 

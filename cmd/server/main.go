@@ -20,7 +20,7 @@ func main() {
 		}
 	}()
 
-	db := client.Database("ecommerce")
+	db := client.Database("EcomServices")
 	productsCol := db.Collection("products")
 
 	productHandler := &handler.ProductHandler{Collection: productsCol}
