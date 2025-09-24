@@ -8,6 +8,7 @@ import (
 
 	"github.com/BHAV0207/E-com-GO/internal/database"
 	"github.com/BHAV0207/E-com-GO/internal/handler"
+	"github.com/BHAV0207/E-com-GO/internal/middleware"
 	"github.com/gorilla/mux"
 )
 
@@ -21,9 +22,8 @@ func main() {
 	}()
 
 	db := client.Database("EcomServices")
-	productsCol := db.Collection("products")
 
-	productHandler := &handler.ProductHandler{Collection: productsCol}
+	productHandler := &handler.ProductHandler{Collection: db.Collection("products")}
 	userHandler := &handler.UserHandler{Collection: db.Collection("users")}
 	router := mux.NewRouter()
 
@@ -32,7 +32,7 @@ func main() {
 	router.HandleFunc("/login", userHandler.Login).Methods("POST")
 
 	// Define routes for products
-	router.HandleFunc("/products", productHandler.CreateProduct).Methods("POST")
+	router.Handle("/products", middleware.JWTAuthMiddleware(http.HandlerFunc(productHandler.CreateProduct))).Methods("POST")
 	router.HandleFunc("/products", productHandler.GetAllProducts).Methods("GET")
 	router.HandleFunc("/products/{id}", productHandler.UpdateProduct).Methods("PUT")
 	router.HandleFunc("/products/{id}", productHandler.DeleteById).Methods("DELETE")

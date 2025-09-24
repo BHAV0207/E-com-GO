@@ -18,8 +18,7 @@ type UserHandler struct {
 	Collection *mongo.Collection
 }
 
-//  REGISTER
-
+// REGISTER
 var validate = validator.New()
 
 func (h *UserHandler) Register(w http.ResponseWriter, r *http.Request) {
@@ -75,7 +74,6 @@ var jwtKey = []byte("your_secret_key")
 
 func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 	var req LoginRequest
-
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Error hashing password", http.StatusInternalServerError)
 		return
@@ -90,26 +88,21 @@ func (h *UserHandler) Login(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
-
 	if !utils.CheckPasswordHash(req.Password, user.Password) {
 		http.Error(w, "Invalid email or password", http.StatusUnauthorized)
 		return
 	}
-
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID.Hex(),
 		"email":   user.Email,
 		"role":    user.Role,
 		"exp":     time.Now().Add(24 * time.Hour).Unix(),
 	})
-
 	tokenString, err := token.SignedString(jwtKey)
 	if err != nil {
 		http.Error(w, "Could not generate token", http.StatusInternalServerError)
 		return
 	}
-
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(LoginResponse{Token: tokenString})
-
 }

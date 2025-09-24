@@ -15,6 +15,16 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
+/*
+This is defining a struct type in Go named ProductHandler.
+Let’s decode it word by word:
+type ProductHandler struct { ... } → Defines a new custom data type called ProductHandler.
+Inside the struct, we have:
+Collection *mongo.Collection
+Collection is a field name.
+*mongo.Collection is its type — a pointer to a mongo.Collection object (from the MongoDB Go driver).
+This means every ProductHandler will hold a reference to a MongoDB collection — specifically, the products collection.
+*/
 type ProductHandler struct {
 	Collection *mongo.Collection
 }
@@ -34,7 +44,6 @@ func (h *ProductHandler) CreateProduct(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to insert product", http.StatusInternalServerError)
 		return
 	}
-
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, "Inserted product with ID: %v", id)
 }
